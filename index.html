@@ -13,6 +13,9 @@
       
       
     <script>
+        // listeners
+        document.addEventListener('keydown', keyPush)
+
         //canvas
         const canvas = document.querySelector("canvas");
         const ctx = canvas.getContext("2d");
@@ -26,24 +29,65 @@
 
         //Loop  
         function gameLoop( ){
+            drawStuff()
+           // moveStuff()
+            requestAnimationFrame(gameLoop); 
             
-            
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0 ,canvas.width, canvas.height);
-
-        snakePosX += snakeSpeed;
-
-        if (snakePosX > canvas.width) {
-            snakePosX = 0;
-        }
-
-
-        ctx.fillStyle ="black";
-        ctx.fillRect (snakePosX, snakePosY, snakeSize, snakeSize);
-
-         requestAnimationFrame(gameLoop);
+         
         }
         gameLoop();
+
+//ahoj nova branch
+        /*
+        *Draw everything
+        */
+        function drawStuff(){
+        rectangle("white", 0 , 0 , canvas.width, canvas.height)
+        rectangle("black", snakePosX, snakePosY, snakeSize, snakeSize)
+        }
+
+        /*
+        *MOVE everything
+        */
+        function moveStuff(){
+
+         snakePosX += snakeSpeed;
+
+        if (snakePosX > canvas.width) {
+                    snakePosX = 0;
+            }
+        }
+
+       //draw rectangle
+       function rectangle(color, x, y, width, height){
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, width, height);
+       }
+       
+
+       //keyboard
+
+       function keyPush(event) {
+        switch(event.key) {
+            case "ArrowUp":
+                snakePosY -= snakeSpeed;
+            break
+            case "ArrowDown":
+                snakePosY += snakeSpeed;
+            break
+
+            case "ArrowRight":
+                snakePosX += snakeSpeed;
+            break
+
+            case "ArrowLeft":
+                snakePosX -= snakeSpeed;
+            break
+            }
+       }
+
+
+
     </script>
 
 </body>
