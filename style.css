@@ -6,3 +6,15 @@ body {
 canvas {
     border: 10px solid #f7347a;
 }
+
+h1 {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    font-size: 4em;
+    margin-top: 0;
+    letter-spacing: -10px;
+}
+
+h1 strong {
+    font-size:  1.35em; display: inline-block ; margin:0 0.25em ;
+}

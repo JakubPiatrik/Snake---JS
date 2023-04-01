@@ -11,6 +11,7 @@
 <body>
     <canvas width="600" height="600"></canvas>
       
+    <h1> 0   </h1>
       
     <script>
         // listeners
@@ -18,44 +19,109 @@
 
         //canvas
         const canvas = document.querySelector("canvas");
+        const title = document.querySelector("h1");
         const ctx = canvas.getContext("2d");
 
-        //player
-        const snakeSize = 50;
-        let snakeSpeed = 5;
-        let snakePosX = 0;
-        let snakePosY =canvas.height /2 - snakeSize /2;
+        //game
+        let gameIsRunning = true;
 
+
+        const tileSize = 50;
+        const tilleCountX = canvas.width / tileSize;
+        const tilleCountY = canvas.height / tileSize
+        const fps = 8;
+        let score = 0;
+    
+        //player
+        let snakeSpeed = tileSize;
+        let snakePosX = 0;
+        let snakePosY =canvas.height /2 ;
+
+        let velocityX = 1;
+        let velocityY = 0;
+
+        let tail = [];
+        let snakeLenght = 4;
+
+        // food
+        let foodPosX = 0;
+        let foodPosY = 0;
 
         //Loop  
         function gameLoop( ){
-            drawStuff()
-           // moveStuff()
-            requestAnimationFrame(gameLoop); 
-            
-         
+            if ( gameIsRunning) {
+                drawStuff()
+            moveStuff()
+            setTimeout(gameLoop, 1000/fps); 
+            }        
         }
+
+        resetFood();
         gameLoop();
 
-//ahoj nova branch
         /*
         *Draw everything
         */
         function drawStuff(){
-        rectangle("white", 0 , 0 , canvas.width, canvas.height)
-        rectangle("black", snakePosX, snakePosY, snakeSize, snakeSize)
-        }
 
+        // background
+        rectangle("#ffbf00", 0 , 0 , canvas.width, canvas.height);
+
+        //grid
+        drawGrid();
+
+        //food
+        rectangle('#00bfff', foodPosX, foodPosY, tileSize, tileSize);
+
+        tail.forEach((snakePart) =>
+        rectangle("#555", snakePart.x, snakePart.y, tileSize, tileSize)
+        );
+
+         // snake
+         rectangle("black", snakePosX, snakePosY, tileSize, tileSize);
+    }
         /*
         *MOVE everything
         */
         function moveStuff(){
 
-         snakePosX += snakeSpeed;
+            snakePosX += snakeSpeed * velocityX;
+            snakePosY += snakeSpeed * velocityY;
 
-        if (snakePosX > canvas.width) {
-                    snakePosX = 0;
-            }
+         // wall collision   
+        if (snakePosX > canvas.width - tileSize) {
+                    snakePosX = 0;             
+         }
+         if (snakePosX < - tileSize) {
+                 snakePosX = canvas.width;
+         }
+         if (snakePosY > canvas.height - tileSize) {
+                 snakePosY = 0;
+         }
+         if (snakePosY < -tileSize) {
+                 snakePosY = canvas.height;
+         }
+
+
+         // tail collision
+         tail.forEach((snakePart) => {
+            if (snakePosX === snakePart.x && snakePosY === snakePart.y){
+                gameOver()
+         }
+        }); 
+
+         //tail
+         tail.push({x: snakePosX, y: snakePosY});
+
+         //forget 
+         tail = tail.slice(-1 * snakeLenght);
+
+         //food collision  
+         if (snakePosX === foodPosX && snakePosY === foodPosY) {
+          title.textContent = ++score;
+          snakeLenght++;
+          resetFood();
+         }
         }
 
        //draw rectangle
@@ -64,28 +130,83 @@
         ctx.fillRect(x, y, width, height);
        }
        
+       //ked je plne pole
+       function resetFood(){
+        if ( snakeLenght ===tilleCountX*tilleCountY){
+            gameOver();
+        }
 
+
+        foodPosX =  Math.floor(Math.random() * tilleCountX)  * tileSize;
+          foodPosY =  Math.floor(Math.random() * tilleCountY) * tileSize;
+
+          //dont spawn food on snake head
+          if (foodPosX === snakePosX && foodPosY === snakePosY) {
+            resetFood()
+          }
+
+          if( tail.some(snakePart => snakePart.x === foodPosX && snakePart.y ===foodPosY)){
+            resetFood()
+          }
+       }
+
+       //game over
+       function gameOver() {
+        title.innerHTML = ` <strong>💀${score}💀</strong>`;
+        gameIsRunning = false  ;
+       }
+       
        //keyboard
-
        function keyPush(event) {
         switch(event.key) {
             case "ArrowUp":
-                snakePosY -= snakeSpeed;
+            if (velocityY !== 1) {
+                velocityX = 0;
+                velocityY =  -1;
+            }
             break
             case "ArrowDown":
-                snakePosY += snakeSpeed;
+            if (velocityY !== -1) {
+                velocityX = 0;
+                velocityY =  1;
+            }
             break
 
             case "ArrowRight":
-                snakePosX += snakeSpeed;
+            if (velocityX !== -1) {
+                velocityX = 1;
+                velocityY =  0;
+            }
+                 
             break
 
             case "ArrowLeft":
-                snakePosX -= snakeSpeed;
-            break
+            if (velocityX !== 1) {
+                velocityX = -1;
+                velocityY =  0;
             }
+            break;
+            
+
+            default:
+                //restart game
+                if (! gameIsRunning) location.reload();
+            break;
+        }
        }
 
+        function drawGrid(){
+            for (let i = 0; i < tilleCountX; i++) {
+                    for (let j = 0; j < tilleCountY; j++) {
+                    rectangle('#fff',
+                    tileSize * i,
+                    tileSize * j ,
+                    tileSize - 1,
+                    tileSize - 1
+                );
+            }
+            }
+ }
 
 
     </script>
